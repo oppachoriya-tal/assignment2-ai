@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  avatarUrl     String?   @map("avatar_url")
+  bio           String?
+  isActive      Boolean   @default(true) @map("is_active")
+  isVerified    Boolean   @default(false) @map("is_verified")
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  lastLogin     DateTime? @map("last_login")
+
+  // Relations
+  reviews       Review[]
+  favorites     UserFavorite[]
+  followers     UserFollow[] @relation("UserFollowers")
+  following     UserFollow[] @relation("UserFollowing")
+  notifications Notification[]
+  comments      Comment[]
+  reviewHelpful ReviewHelpful[]
+  feedback      Feedback[]
+
+  @@map("users")
+}
+
+model Book {
+  id              String    @id @default(uuid()) @db.Uuid
+  isbn            String?   @unique
+  title           String
+  author          String
+  description     String?
+  coverImageUrl   String?   @map("cover_image_url")
+  publishedYear   Int?      @map("published_year")
+  pageCount       Int?      @map("page_count")
+  language        String    @default("en")
+  publisher       String?
+  price           Float?    // Price in USD
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  reviews         Review[]
+  genres          BookGenre[]
+  favorites       UserFavorite[]
+
+  @@map("books")
+}
+
+model Genre {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  books       BookGenre[]
+
+  @@map("genres")
+}
+
+model BookGenre {
+  bookId    String @map("book_id") @db.Uuid
+  genreId   String @map("genre_id") @db.Uuid
+  book      Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre     Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, genreId])
+  @@map("book_genres")
+}
+
+model Review {
+  id              String    @id @default(uuid()) @db.Uuid
+  bookId          String    @map("book_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  rating          Int       // 1-5 stars
+  reviewText      String    @map("review_text")
+  isHelpfulCount  Int       @default(0) @map("is_helpful_count")
+  isFlagged       Boolean   @default(false) @map("is_flagged")
+  isModerated     Boolean   @default(false) @map("is_moderated")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  book            Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments        Comment[]
+  helpfulVotes    ReviewHelpful[]
+
+  @@unique([bookId, userId])
+  @@map("reviews")
+}
+
+model ReviewHelpful {
+  id       String @id @default(uuid()) @db.Uuid
+  reviewId String @map("review_id") @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+  isHelpful Boolean @map("is_helpful")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId])
+  @@map("review_helpful")
+}
+
+model UserFavorite {
+  id      String @id @default(uuid()) @db.Uuid
+  userId  String @map("user_id") @db.Uuid
+  bookId  String @map("book_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book    Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@map("user_favorites")
+}
+
+model UserFollow {
+  id          String @id @default(uuid()) @db.Uuid
+  followerId  String @map("follower_id") @db.Uuid
+  followingId String @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relations
+  follower    User @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("user_follows")
+}
+
+model Comment {
+  id        String    @id @default(uuid()) @db.Uuid
+  reviewId  String    @map("review_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  content   String
+  isFlagged Boolean   @default(false) @map("is_flagged")
+  isModerated Boolean @default(false) @map("is_moderated")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  review     Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false) @map("is_read")
+  metadata  Json?
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_resets")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum NotificationType {
+  REVIEW_COMMENT
+  FOLLOW
+  BOOK_RECOMMENDATION
+  SYSTEM_ANNOUNCEMENT
+}
+
+model Feedback {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String?          @map("user_id") @db.Uuid
+  type            FeedbackType
+  subject         String
+  message         String
+  rating          Int?             // 1-5 stars for general feedback
+  status          FeedbackStatus   @default(PENDING)
+  metadata        Json?            // Additional data like book ID, page URL, etc.
+  userAgent       String?          @map("user_agent")
+  userEmail       String?          @map("user_email")
+  adminResponse   String?          @map("admin_response")
+  adminResponseAt DateTime?        @map("admin_response_at")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  // Relations
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("feedback")
+}
+
+enum FeedbackType {
+  BUG_REPORT
+  FEATURE_REQUEST
+  GENERAL_FEEDBACK
+  COVER_GENERATION
+  UI_IMPROVEMENT
+}
+
+enum FeedbackStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}

@@ -1,0 +1,489 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProfilePage Component renders consistently 1`] = `
+<div
+  class="MuiContainer-root MuiContainer-maxWidthLg css-1oqqzyl-MuiContainer-root"
+  data-testid="profile-page"
+>
+  <div
+    class="MuiBox-root css-8f57v9"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-13nu2j-MuiPaper-root-MuiCard-root"
+      style="opacity: 1; webkit-transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 800ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+    >
+      <div
+        class="MuiBox-root css-qp976a"
+      />
+      <div
+        class="MuiCardContent-root css-rt41h5-MuiCardContent-root"
+      >
+        <div
+          class="MuiStack-root css-6xevoz-MuiStack-root"
+        >
+          <span
+            class="MuiBadge-root css-1c32n2y-MuiBadge-root"
+            style="transform: none; webkit-transition: transform 1000ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: transform 1000ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+          >
+            <div
+              class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault css-1y5adst-MuiAvatar-root"
+            >
+              T
+              U
+            </div>
+            <span
+              class="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginBottomRight MuiBadge-anchorOriginBottomRightCircular MuiBadge-overlapCircular css-9sufak-MuiBadge-badge"
+            >
+              <div
+                class="MuiBox-root css-blyjw4"
+              >
+                <span
+                  class="MuiTypography-root MuiTypography-caption css-hlcx9g-MuiTypography-root"
+                >
+                  ✓
+                </span>
+              </div>
+            </span>
+          </span>
+          <div
+            class="MuiBox-root css-1rr4qq7"
+          >
+            <h1
+              class="MuiTypography-root MuiTypography-h3 MuiTypography-gutterBottom css-1h9kp1f-MuiTypography-root"
+            >
+              Test
+               
+              User
+            </h1>
+            <div
+              class="MuiStack-root css-1irh47u-MuiStack-root"
+            >
+              <div
+                class="MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-filledDefault css-9q0yi2-MuiChip-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconMedium MuiChip-iconColorDefault css-i4bv87-MuiSvgIcon-root"
+                  data-testid="PersonIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4m0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4"
+                  />
+                </svg>
+                <span
+                  class="MuiChip-label MuiChip-labelMedium css-6od3lo-MuiChip-label"
+                >
+                  @testuser
+                </span>
+              </div>
+              <div
+                class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault css-1oyxbyq-MuiChip-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconSmall MuiChip-iconColorDefault css-i4bv87-MuiSvgIcon-root"
+                  data-testid="LanguageIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2m6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56M12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96M4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56m2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8M12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96M14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2m.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56M16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2z"
+                  />
+                </svg>
+                <span
+                  class="MuiChip-label MuiChip-labelSmall css-rrn746-MuiChip-label"
+                >
+                  English
+                </span>
+              </div>
+            </div>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-1mo5v2s-MuiTypography-root"
+            >
+              test@example.com
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-us5c47-MuiTypography-root"
+            >
+              "
+              Test bio
+              "
+            </p>
+            <div
+              class="MuiStack-root css-p81m6m-MuiStack-root"
+            >
+              <div
+                class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault css-1oyxbyq-MuiChip-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconSmall MuiChip-iconColorDefault css-i4bv87-MuiSvgIcon-root"
+                  data-testid="CalendarTodayIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 18H4V8h16z"
+                  />
+                </svg>
+                <span
+                  class="MuiChip-label MuiChip-labelSmall css-rrn746-MuiChip-label"
+                >
+                  Joined January 1, 2023
+                </span>
+              </div>
+              <div
+                class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorDefault MuiChip-outlinedDefault css-1oyxbyq-MuiChip-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-icon MuiChip-iconSmall MuiChip-iconColorDefault css-i4bv87-MuiSvgIcon-root"
+                  data-testid="VisibilityIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5M12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5m0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3"
+                  />
+                </svg>
+                <span
+                  class="MuiChip-label MuiChip-labelSmall css-rrn746-MuiChip-label"
+                >
+                  Last active December 1, 2023
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="MuiStack-root css-jfdv4h-MuiStack-root"
+          >
+            <button
+              aria-label="Edit Profile"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1x3cudu-MuiButtonBase-root-MuiIconButton-root"
+              data-mui-internal-clone-element="true"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="EditIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"
+                />
+              </svg>
+            </button>
+            <button
+              aria-label="Share Profile"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1x3cudu-MuiButtonBase-root-MuiIconButton-root"
+              data-mui-internal-clone-element="true"
+              tabindex="0"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                data-testid="ShareIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3 css-1ov6x74-MuiGrid-root"
+    >
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-3 css-10voxkt-MuiGrid-root"
+      >
+        <div
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-7zoerl-MuiPaper-root-MuiCard-root"
+          style="transform: none; webkit-transition: transform 1200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: transform 1200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <div
+            class="MuiBox-root css-1hlpz3m"
+          />
+          <div
+            class="MuiCardContent-root css-993mr5-MuiCardContent-root"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1t212i8-MuiSvgIcon-root"
+              data-testid="StarIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+              />
+            </svg>
+            <div
+              class="MuiTypography-root MuiTypography-h3 css-1sgmnm5-MuiTypography-root"
+            >
+              0
+            </div>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-ncm894-MuiTypography-root"
+            >
+              Reviews Written
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-3 css-10voxkt-MuiGrid-root"
+      >
+        <div
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-86hvxe-MuiPaper-root-MuiCard-root"
+          style="transform: none; webkit-transition: transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: transform 1400ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <div
+            class="MuiBox-root css-1hlpz3m"
+          />
+          <div
+            class="MuiCardContent-root css-993mr5-MuiCardContent-root"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1t212i8-MuiSvgIcon-root"
+              data-testid="FavoriteIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"
+              />
+            </svg>
+            <div
+              class="MuiTypography-root MuiTypography-h3 css-1sgmnm5-MuiTypography-root"
+            >
+              0
+            </div>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-ncm894-MuiTypography-root"
+            >
+              Favorite Books
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-3 css-10voxkt-MuiGrid-root"
+      >
+        <div
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-hmzfc6-MuiPaper-root-MuiCard-root"
+          style="transform: none; webkit-transition: transform 1600ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: transform 1600ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <div
+            class="MuiBox-root css-1hlpz3m"
+          />
+          <div
+            class="MuiCardContent-root css-993mr5-MuiCardContent-root"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1t212i8-MuiSvgIcon-root"
+              data-testid="TrendingUpIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="m16 6 2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"
+              />
+            </svg>
+            <div
+              class="MuiTypography-root MuiTypography-h3 css-1sgmnm5-MuiTypography-root"
+            >
+              0.0
+            </div>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-ncm894-MuiTypography-root"
+            >
+              Avg Rating Given
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 MuiGrid-grid-md-3 css-10voxkt-MuiGrid-root"
+      >
+        <div
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiCard-root css-jjy6xt-MuiPaper-root-MuiCard-root"
+          style="transform: none; webkit-transition: transform 1800ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: transform 1800ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <div
+            class="MuiBox-root css-1hlpz3m"
+          />
+          <div
+            class="MuiCardContent-root css-993mr5-MuiCardContent-root"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1t212i8-MuiSvgIcon-root"
+              data-testid="SchoolIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M5 13.18v4L12 21l7-3.82v-4L12 17zM12 3 1 9l11 6 9-4.91V17h2V9z"
+              />
+            </svg>
+            <div
+              class="MuiTypography-root MuiTypography-h3 css-1sgmnm5-MuiTypography-root"
+            >
+              USER
+            </div>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-ncm894-MuiTypography-root"
+            >
+              Member Since
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-169956t-MuiPaper-root"
+      style="opacity: 1; webkit-transition: opacity 2000ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 2000ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+    >
+      <div
+        class="MuiTabs-root css-80by1j-MuiTabs-root"
+      >
+        <div
+          class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+          style="overflow: hidden; margin-bottom: 0px;"
+        >
+          <div
+            aria-label="profile tabs"
+            class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+            role="tablist"
+          >
+            <button
+              aria-selected="true"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="0"
+              type="button"
+            >
+              <div
+                class="MuiStack-root css-kdc3n8-MuiStack-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  data-testid="CommentIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4zM18 14H6v-2h12zm0-3H6V9h12zm0-3H6V6h12z"
+                  />
+                </svg>
+                <span>
+                  Reviews (
+                  0
+                  )
+                </span>
+              </div>
+              <span
+                class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
+              />
+            </button>
+            <button
+              aria-selected="false"
+              class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
+              role="tab"
+              tabindex="-1"
+              type="button"
+            >
+              <div
+                class="MuiStack-root css-kdc3n8-MuiStack-root"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  data-testid="FavoriteIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"
+                  />
+                </svg>
+                <span>
+                  Favorites (
+                  0
+                  )
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="MuiBox-root css-1wcaknn"
+      >
+        <div
+          class="MuiBox-root css-0"
+          style="opacity: 1; webkit-transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+        >
+          <div
+            class="MuiStack-root css-1dipck7-MuiStack-root"
+          >
+            <h5
+              class="MuiTypography-root MuiTypography-h5 css-1xxajqc-MuiTypography-root"
+            >
+              Recent Reviews
+            </h5>
+            <div
+              class="MuiChip-root MuiChip-outlined MuiChip-sizeSmall MuiChip-colorPrimary MuiChip-outlinedPrimary css-1y6wsfa-MuiChip-root"
+            >
+              <span
+                class="MuiChip-label MuiChip-labelSmall css-rrn746-MuiChip-label"
+              >
+                0 total
+              </span>
+            </div>
+          </div>
+          <div
+            class="MuiBox-root css-fvfjnh"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-11ndtqy-MuiSvgIcon-root"
+              data-testid="BookIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2M6 4h5v8l-2.5-1.5L6 12z"
+              />
+            </svg>
+            <h6
+              class="MuiTypography-root MuiTypography-h6 MuiTypography-gutterBottom css-137rogq-MuiTypography-root"
+            >
+              No reviews yet
+            </h6>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-r40f8v-MuiTypography-root"
+            >
+              Start reviewing books to see them here!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookReview Platform</title>
+    <script>
+        // Inject environment variables from Docker
+        window.ENV = {
+            VITE_API_BASE: '${VITE_API_BASE:-http://localhost:3000}',
+            VITE_NODE_ENV: '${VITE_NODE_ENV:-development}'
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .header {
+            background: rgba(45, 55, 72, 0.95);
+            border-bottom: 1px solid #4a5568;
+        }
+
+        body.dark-mode .header h1 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modal-content {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modal-content h2 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modal-header {
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .modal-header .close {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .modal-header .close:hover {
+            color: #fc8181;
+        }
+
+        body.dark-mode .pagination-controls label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .pagination-controls select {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .pagination-controls select:hover {
+            border-color: #667eea;
+        }
+
+        body.dark-mode .pagination button {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .pagination button:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Admin Panel Styles */
+        .admin-modal {
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 1200px;
+        }
+
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #718096;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: #2d3748;
+            background-color: #f7fafc;
+        }
+
+        .tab-btn.active {
+            color: #3182ce;
+            border-bottom-color: #3182ce;
+            background-color: #ebf8ff;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        .admin-section {
+            margin-bottom: 30px;
+        }
+
+        .admin-section h3 {
+            margin-bottom: 15px;
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .admin-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 10px;
+        }
+
+        .admin-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info h4 {
+            margin: 0 0 8px 0;
+            color: #2d3748;
+            font-size: 16px;
+        }
+
+        .item-info p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item strong {
+            color: #2d3748;
+        }
+
+        .activity-item small {
+            color: #718096;
+            float: right;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-style: italic;
+        }
+
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #e53e3e;
+            background-color: #fed7d7;
+            border-radius: 6px;
+        }
+
+        /* Dark mode admin styles */
+        body.dark-mode .admin-tabs {
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .tab-btn {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .tab-btn:hover {
+            color: #e2e8f0;
+            background-color: #2d3748;
+        }
+
+        body.dark-mode .tab-btn.active {
+            color: #63b3ed;
+            border-bottom-color: #63b3ed;
+            background-color: #2a4365;
+        }
+
+        body.dark-mode .admin-section h3 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .search-input {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .admin-list {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .admin-item {
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .item-info h4 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .item-info p {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .activity-item {
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .activity-item strong {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .activity-item small {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .no-data {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .error {
+            color: #fc8181;
+            background-color: #742a2a;
+        }
+
+        body.dark-mode .book-card {
+            background: #4a5568;
+            border: 1px solid #718096;
+        }
+
+        body.dark-mode .book-card h3 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .book-card .book-author {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .book-card .book-description {
+            color: #cbd5e0;
+        }
+
+        body.dark-mode .filter-group label {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .filter-group input,
+        body.dark-mode .filter-group select {
+            background: #4a5568;
+            border-color: #718096;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .filter-group input:focus,
+        body.dark-mode .filter-group select:focus {
+            border-color: #667eea;
+        }
+
+        body.dark-mode .btn {
+            background: #4a5568;
+            color: #e2e8f0;
+            border-color: #718096;
+        }
+
+        body.dark-mode .btn:hover {
+            background: #5a6578;
+        }
+
+        body.dark-mode .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        body.dark-mode .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        /* Admin Panel Styles */
+        .admin-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .admin-section h3 {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .stat-number {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .stat-label {
+            color: #cbd5e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Login Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4a5568;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            text-align: left;
+        }
+
+        .modal-header .close {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.3s ease;
+        }
+
+        .modal-header .close:hover {
+            color: #e53e3e;
+        }
+
+        .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        /* Filters */
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Search Tabs */
+        .search-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            border: 2px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.9);
+            color: #4a5568;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* NLP Search Styles */
+        .nlp-search-container {
+            max-width: 800px;
+        }
+
+        .nlp-input-group {
+            margin-bottom: 20px;
+        }
+
+        .nlp-input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 16px;
+        }
+
+        .nlp-input-group textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .nlp-input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .nlp-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .nlp-results {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .nlp-results h4 {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        .nlp-recommendation {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .nlp-recommendation h5 {
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .nlp-recommendation p {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        /* Sample Queries Styles */
+        .sample-queries-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .sample-queries-section h4 {
+            margin-bottom: 15px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .sample-queries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .sample-query-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sample-query-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .query-suggestions {
+            margin-top: 8px;
+            color: #718096;
+        }
+
+        .query-suggestions small {
+            font-style: italic;
+        }
+
+        .btn-icon {
+            margin-right: 8px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .results-stats {
+            font-size: 14px;
+            color: #718096;
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+
+        .modern-recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .modern-book-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .modern-book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-book-cover {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-book-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .modern-book-author {
+            color: #718096;
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .modern-book-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .modern-genre-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .modern-book-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .rating-stars {
+            color: #fbbf24;
+            font-size: 16px;
+        }
+
+        .rating-text {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .modern-recommendation-reason {
+            background: linear-gradient(135deg, #f0f4ff, #e6f3ff);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .reason-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .reason-text {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .modern-book-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .modern-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .modern-btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .modern-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .modern-btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+        }
+
+        .modern-btn-secondary:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .confidence-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Dark Mode for Search Tabs and NLP */
+        body.dark-mode .tab-button {
+            background: rgba(45, 55, 72, 0.9);
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        body.dark-mode .nlp-input-group textarea {
+            background: #4a5568;
+            color: #e2e8f0;
+            border-color: #718096;
+        }
+
+        body.dark-mode .nlp-results {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        body.dark-mode .nlp-recommendation {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .nlp-recommendation h5 {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .nlp-recommendation p {
+            color: #a0aec0;
+        }
+
+        /* Dark mode styles for new components */
+        body.dark-mode .sample-queries-section {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+        }
+
+        body.dark-mode .sample-query-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .sample-query-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .query-suggestions {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .btn-outline {
+            border-color: #a0aec0;
+            color: #a0aec0;
+        }
+
+        body.dark-mode .btn-outline:hover {
+            background: #a0aec0;
+            color: #2d3748;
+        }
+
+        body.dark-mode .results-header {
+            border-bottom-color: #4a5568;
+        }
+
+        body.dark-mode .results-stats {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modern-book-card {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modern-book-title {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .modern-book-author {
+            color: #a0aec0;
+        }
+
+        body.dark-mode .modern-recommendation-reason {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+        }
+
+        body.dark-mode .reason-text {
+            color: #cbd5e0;
+        }
+
+        body.dark-mode .modern-btn-secondary {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        body.dark-mode .modern-btn-secondary:hover {
+            background: #4a5568;
+            border-color: #718096;
+        }
+
+        /* Books Grid */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .book-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            color: #718096;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .book-description {
+            color: #4a5568;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .book-year {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .book-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stars {
+            color: #fbbf24;
+            font-size: 1rem;
+        }
+
+        .rating-text {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .book-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 20px;
+        }
+
+        .pagination-controls label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .pagination-controls select {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-controls select:hover {
+            border-color: #667eea;
+        }
+
+        .pagination-controls select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Book Details Modal */
+        .book-details-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .book-details-content {
+            background: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .book-details-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .book-details-cover {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .book-details-info h2 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .book-details-author {
+            color: #718096;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .book-details-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .book-details-meta span {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .book-details-description {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Reviews Section */
+        .reviews-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .reviews-section h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .review-form {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .review-form h4 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .review-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 15px;
+        }
+
+        .rating-input {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .rating-input input[type="radio"] {
+            display: none;
+        }
+
+        .rating-input label {
+            font-size: 1.5rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .rating-input label:hover,
+        .rating-input input:checked ~ label,
+        .rating-input label:hover ~ label {
+            color: #fbbf24;
+        }
+
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .review-date {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .review-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .review-text {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .book-details-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .book-details-cover {
+                width: 150px;
+                height: 225px;
+                margin: 0 auto;
+            }
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* User info */
+        .user-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        /* Feedback Modal */
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+        }
+
+        .feedback-content {
+            background: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .feedback-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .feedback-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #718096;
+            transition: color 0.3s ease;
+        }
+
+        .feedback-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .feedback-tab:hover {
+            color: #667eea;
+        }
+
+        .feedback-form {
+            display: none;
+        }
+
+        .feedback-form.active {
+            display: block;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* AI Cover Generation */
+        .ai-cover-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ai-cover-section h4 {
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .cover-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .cover-option {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .cover-option:hover {
+            transform: scale(1.05);
+        }
+
+        .cover-option img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cover-option .cover-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .ai-generating {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+        }
+
+        .ai-generating .spinner {
+            margin: 0 auto 10px;
+        }
+
+        /* Feedback Stats */
+        .feedback-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* Sample Credentials */
+        .sample-credentials {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sample-credentials h4 {
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .credential-item {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .credential-item strong {
+            color: #2d3748;
+        }
+
+        /* Auth Switch */
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Price Display */
+        .book-price {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Genre Tags */
+        .book-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .genre-tag {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        /* Enhanced Filters */
+        .filter-group select {
+            background: white;
+        }
+
+        .price-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-range input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📚 BookReview Platform</h1>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" onclick="showLoginModal()">Login</button>
+                <button class="btn btn-secondary hidden" id="adminBtn" onclick="showAdminView()">Admin Panel</button>
+                <button class="btn btn-secondary hidden" id="logoutBtn" onclick="logout()">Logout</button>
+                <button class="btn btn-secondary" onclick="toggleTheme()" id="themeToggle">🌙 Dark Mode</button>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info hidden" id="userInfo">
+            <div class="user-details">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div>
+                    <div class="user-name" id="userName">User</div>
+                    <div class="user-role" id="userRole">Guest</div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-secondary btn-small" onclick="showFavorites()">My Favorites</button>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeLoginModal()">&times;</span>
+                <h2>Login to BookReview</h2>
+                
+                <!-- Sample Credentials -->
+                <div class="sample-credentials">
+                    <h4>Sample Credentials:</h4>
+                    <div class="credential-item">
+                        <strong>Admin:</strong> username: admin, password: password123
+                    </div>
+                    <div class="credential-item">
+                        <strong>User:</strong> username: john_reader, password: password123
+                    </div>
+                    <div class="credential-item">
+                        <strong>User:</strong> username: sarah_bookworm, password: password123
+                    </div>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Don't have an account? <a href="#" onclick="showRegisterModal()">Register here</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeRegisterModal()">&times;</span>
+                <h2>Register for BookReview</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">Username:</label>
+                        <input type="text" id="regUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email:</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regFirstName">First Name:</label>
+                        <input type="text" id="regFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regLastName">Last Name:</label>
+                        <input type="text" id="regLastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password:</label>
+                        <input type="password" id="regPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirm Password:</label>
+                        <input type="password" id="regConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Already have an account? <a href="#" onclick="showLoginModal()">Login here</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="mainContent" class="main-content">
+            <!-- Search Tabs -->
+            <div class="search-tabs">
+                <button class="tab-button active" onclick="switchSearchTab('basic')">Basic Search</button>
+                <button class="tab-button" onclick="switchSearchTab('nlp')">AI Recommendations</button>
+            </div>
+
+            <!-- Basic Search Filters -->
+            <div id="basicSearch" class="filters">
+                <h3>🔍 Filter & Search Books</h3>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="searchInput">Search:</label>
+                        <input type="text" id="searchInput" placeholder="Search books, authors...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="genreSelect">Genre:</label>
+                        <select id="genreSelect">
+                            <option value="">All Genres</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="sortSelect">Sort by:</label>
+                        <select id="sortSelect">
+                            <option value="createdAt">Newest First</option>
+                            <option value="title">Title A-Z</option>
+                            <option value="publishedYear">Publication Year</option>
+                            <option value="rating">Rating</option>
+                            <option value="price">Price</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="minRating">Min Rating:</label>
+                        <select id="minRating">
+                            <option value="0">Any Rating</option>
+                            <option value="1">1+ Stars</option>
+                            <option value="2">2+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="minPrice">Min Price ($):</label>
+                        <input type="number" id="minPrice" placeholder="0" min="0" step="0.01">
+                    </div>
+                    <div class="filter-group">
+                        <label for="maxPrice">Max Price ($):</label>
+                        <input type="number" id="maxPrice" placeholder="100" min="0" step="0.01">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NLP Search Section -->
+            <div id="nlpSearch" class="filters" style="display: none;">
+                <h3>🤖 AI Book Recommendations</h3>
+                <div class="nlp-search-container">
+                    <!-- Sample Queries Section -->
+                    <div class="sample-queries-section">
+                        <h4>💡 Try these sample queries:</h4>
+                        <div class="sample-queries-grid">
+                            <button class="sample-query-btn" onclick="useSampleQuery('I want a thrilling mystery novel with strong female characters')">
+                                🔍 Mystery with strong female leads
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I need a light-hearted romance book for a beach vacation')">
+                                💕 Beach vacation romance
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I want to learn about machine learning for beginners')">
+                                🤖 ML for beginners
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I love fantasy books with dragons and magic')">
+                                🐉 Fantasy with dragons
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I want a thought-provoking sci-fi book about AI')">
+                                🤖 AI sci-fi
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I need a motivational self-help book')">
+                                💪 Self-help motivation
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I want historical fiction set in World War II')">
+                                📚 WWII historical fiction
+                            </button>
+                            <button class="sample-query-btn" onclick="useSampleQuery('I love books with plot twists and unexpected endings')">
+                                🔄 Plot twists & surprises
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="nlp-input-group">
+                        <label for="nlpQuery">Tell me what you're looking for:</label>
+                        <textarea id="nlpQuery" placeholder="Describe your perfect book... e.g., 'I want a thrilling mystery novel with strong female characters' or 'I need a technical book about machine learning for beginners'"></textarea>
+                        <div class="query-suggestions">
+                            <small>💡 Tip: Be specific about genre, mood, themes, or reading preferences for better recommendations!</small>
+                        </div>
+                    </div>
+                    <div class="nlp-actions">
+                        <button class="btn btn-primary" onclick="getAIRecommendations()">
+                            <span class="btn-icon">🤖</span>
+                            Get AI Recommendations
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearNLPQuery()">
+                            <span class="btn-icon">🗑️</span>
+                            Clear
+                        </button>
+                        <button class="btn btn-outline" onclick="generateRandomQuery()">
+                            <span class="btn-icon">🎲</span>
+                            Random Query
+                        </button>
+                    </div>
+                    <div id="nlpResults" class="nlp-results" style="display: none;">
+                        <div class="results-header">
+                            <h4>✨ AI Recommendations</h4>
+                            <div class="results-stats" id="resultsStats"></div>
+                        </div>
+                        <div id="nlpRecommendations" class="modern-recommendations-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Grid -->
+            <div id="booksContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading books...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+
+        <!-- Book Details Modal -->
+        <div id="bookDetailsModal" class="book-details-modal">
+            <div class="book-details-content">
+                <span class="close" onclick="closeBookDetails()">&times;</span>
+                <div id="bookDetailsContent">
+                    <!-- Book details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentBooks = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentFilters = {
+            search: '',
+            genre: '',
+            sortBy: 'createdAt',
+            sortOrder: 'desc',
+            minRating: 0,
+            minPrice: undefined,
+            maxPrice: undefined,
+            page: 1,
+            limit: 10
+        };
+
+        // API Base URL - Dynamic based on environment
+        const API_BASE = (() => {
+            // Check for environment variable first (set by Docker)
+            if (window.ENV && window.ENV.VITE_API_BASE) {
+                return window.ENV.VITE_API_BASE;
+            }
+            
+            // Dynamic detection based on hostname
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            
+            // AWS/Production environment
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1' && !hostname.includes('localhost')) {
+                return `http://${hostname}:3000/api`;
+            }
+            
+            // Local development
+            return 'http://localhost:3000/api';
+        })();
+
+        // Initialize the application
+        // Suppress browser extension errors
+        window.addEventListener('error', function(event) {
+            if (event.message && event.message.includes('runtime.lastError')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved theme
+            loadTheme();
+            
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showMainContent();
+                updateUserInfo();
+            } else {
+                showGuestView();
+            }
+            
+            // Load genres
+            loadGenres();
+        });
+
+        // Show login modal
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        // Close login modal
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        // Show register modal
+        function showRegisterModal() {
+            closeLoginModal();
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        // Close register modal
+        function closeRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+
+        // Load genres
+        async function loadGenres() {
+            try {
+                const response = await fetch(`${API_BASE}/books/genres`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const genreSelect = document.getElementById('genreSelect');
+                    genreSelect.innerHTML = '<option value="">All Genres</option>';
+                    
+                    data.data.forEach(genre => {
+                        const option = document.createElement('option');
+                        option.value = genre;
+                        option.textContent = genre;
+                        genreSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading genres:', error);
+            }
+        }
+
+        // Show guest view
+        function showGuestView() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showMainContent();
+            updateUserInfo();
+            loadBooks();
+        }
+
+        // Theme Toggle Function
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeToggle.textContent = '🌙 Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️ Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme on page load
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️ Light Mode';
+            } else {
+                themeToggle.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        // Show main content
+        function showMainContent() {
+            document.getElementById('mainContent').classList.add('active');
+            loadBooks();
+        }
+
+        // Update user info display
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            const userAvatar = document.getElementById('userAvatar');
+            const adminBtn = document.getElementById('adminBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (currentUser) {
+                userInfo.classList.remove('hidden');
+                userName.textContent = currentUser.username;
+                userRole.textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+                userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+                
+                if (currentUser.role === 'admin') {
+                    adminBtn.classList.remove('hidden');
+                } else {
+                    adminBtn.classList.add('hidden');
+                }
+                logoutBtn.classList.remove('hidden');
+            } else {
+                userInfo.classList.add('hidden');
+                adminBtn.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentUser = {
+                        ...data.data.user,
+                        token: data.data.token
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    closeLoginModal();
+                    showMainContent();
+                    updateUserInfo();
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            }
+        });
+
+        // Register form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/v2/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, firstName, lastName, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Registration successful! Please login with your credentials.');
+                    closeRegisterModal();
+                    showLoginModal();
+                } else {
+                    alert('Registration failed: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Registration failed. Please try again.');
+            }
+        });
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            showGuestView();
+        }
+
+        // Show admin view
+        function showAdminView() {
+            if (currentUser && currentUser.role === 'admin') {
+                showAdminPanel();
+            } else {
+                alert('Access denied. Admin privileges required.');
+            }
+        }
+
+        function showAdminPanel() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content admin-modal">
+                    <div class="modal-header">
+                        <h2>🔧 Admin Panel</h2>
+                        <span class="close" onclick="closeModal(this)">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="admin-tabs">
+                            <button class="tab-btn active" onclick="switchAdminTab('stats')">📊 Statistics</button>
+                            <button class="tab-btn" onclick="switchAdminTab('books')">📚 Books</button>
+                            <button class="tab-btn" onclick="switchAdminTab('users')">👥 Users</button>
+                            <button class="tab-btn" onclick="switchAdminTab('reviews')">⭐ Reviews</button>
+                            <button class="tab-btn" onclick="switchAdminTab('genres')">🏷️ Genres</button>
+                        </div>
+                        
+                        <div id="adminStatsTab" class="admin-tab-content active">
+                            <div class="admin-section">
+                                <h3>📊 System Statistics</h3>
+                                <div id="adminStats" class="stats-grid">
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalBooks">-</div>
+                                        <div class="stat-label">Total Books</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalUsers">-</div>
+                                        <div class="stat-label">Total Users</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalReviews">-</div>
+                                        <div class="stat-label">Total Reviews</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalFavorites">-</div>
+                                        <div class="stat-label">Total Favorites</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalGenres">-</div>
+                                        <div class="stat-label">Total Genres</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="admin-section">
+                                <h3>📈 Recent Activity</h3>
+                                <div id="recentActivity" class="activity-list">
+                                    <div class="loading">Loading recent activity...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="adminBooksTab" class="admin-tab-content">
+                            <div class="admin-section">
+                                <h3>📚 Book Management</h3>
+                                <div class="admin-actions">
+                                    <button class="btn btn-primary" onclick="showAddBookForm()">Add New Book</button>
+                                    <button class="btn btn-secondary" onclick="loadAdminBooks()">Refresh Books</button>
+                                    <input type="text" id="bookSearch" placeholder="Search books..." class="search-input" onkeyup="searchAdminBooks()">
+                                </div>
+                                <div id="adminBooksList" class="admin-list">
+                                    <div class="loading">Loading books...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="adminUsersTab" class="admin-tab-content">
+                            <div class="admin-section">
+                                <h3>👥 User Management</h3>
+                                <div class="admin-actions">
+                                    <button class="btn btn-secondary" onclick="loadAdminUsers()">Refresh Users</button>
+                                    <input type="text" id="userSearch" placeholder="Search users..." class="search-input" onkeyup="searchAdminUsers()">
+                                </div>
+                                <div id="adminUsersList" class="admin-list">
+                                    <div class="loading">Loading users...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="adminReviewsTab" class="admin-tab-content">
+                            <div class="admin-section">
+                                <h3>⭐ Review Management</h3>
+                                <div class="admin-actions">
+                                    <button class="btn btn-secondary" onclick="loadAdminReviews()">Refresh Reviews</button>
+                                    <button class="btn btn-warning" onclick="loadFlaggedReviews()">View Flagged</button>
+                                </div>
+                                <div id="adminReviewsList" class="admin-list">
+                                    <div class="loading">Loading reviews...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="adminGenresTab" class="admin-tab-content">
+                            <div class="admin-section">
+                                <h3>🏷️ Genre Management</h3>
+                                <div class="admin-actions">
+                                    <button class="btn btn-primary" onclick="showAddGenreForm()">Add New Genre</button>
+                                    <button class="btn btn-secondary" onclick="loadAdminGenres()">Refresh Genres</button>
+                                </div>
+                                <div id="adminGenresList" class="admin-list">
+                                    <div class="loading">Loading genres...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            loadAdminStats();
+        }
+
+        async function loadAdminStats() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('totalBooks').textContent = data.data.totalBooks || 0;
+                        document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
+                        document.getElementById('totalReviews').textContent = data.data.totalReviews || 0;
+                        document.getElementById('totalFavorites').textContent = data.data.totalFavorites || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading admin stats:', error);
+                // Set default values if API fails
+                document.getElementById('totalBooks').textContent = '20+';
+                document.getElementById('totalUsers').textContent = '4+';
+                document.getElementById('totalReviews').textContent = '10+';
+                document.getElementById('totalFavorites').textContent = '5+';
+            }
+        }
+
+        function addNewBook() {
+            alert('Add New Book feature coming soon!');
+        }
+
+        function refreshBookData() {
+            loadBooks();
+            alert('Book data refreshed!');
+        }
+
+        function viewAllUsers() {
+            alert('User management feature coming soon!');
+        }
+
+        function viewUserActivity() {
+            alert('User activity feature coming soon!');
+        }
+
+
+        // Show favorites
+        async function showFavorites() {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            if (!currentUser.token) {
+                alert('Authentication token missing. Please login again.');
+                logout();
+                return;
+            }
+
+            try {
+                // Get user's favorite books directly
+                const response = await fetch(`${API_BASE}/users/favorites`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.status === 401) {
+                    alert('Session expired. Please login again.');
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const favorites = data.data;
+
+                    if (favorites.length === 0) {
+                        alert('You have no favorite books yet. Add some books to your favorites!');
+                        return;
+                    }
+
+                    // Show favorites in a modal
+                    showFavoritesModal(favorites);
+                } else {
+                    alert('Error loading favorites: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                alert('Error loading favorites. Please try again.');
+            }
+        }
+
+        // Show favorites modal
+        function showFavoritesModal(favorites) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>My Favorite Books</h2>
+                        <span class="close" onclick="closeModal(this)">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="books-grid">
+                            ${favorites.map(book => `
+                                <div class="book-card">
+                                    <img src="${book.coverImageUrl || 'https://via.placeholder.com/200x300?text=No+Cover'}" 
+                                         alt="${book.title}" class="book-cover">
+                                    <div class="book-info">
+                                        <h3>${book.title}</h3>
+                                        <p class="book-author">by ${book.author}</p>
+                                        <div class="book-rating">
+                                            <span class="stars">${'★'.repeat(Math.round(book.averageRating || 0))}${'☆'.repeat(5 - Math.round(book.averageRating || 0))}</span>
+                                            <span class="rating-text">${(book.averageRating || 0).toFixed(1)} (${book.totalReviews || 0} reviews)</span>
+                                        </div>
+                                        <div class="book-actions">
+                                            <button class="btn btn-primary btn-small" onclick="showBookDetails('${book.id}')">View Details</button>
+                                            <button class="btn btn-danger btn-small" onclick="removeFromFavorites('${book.id}')">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Close modal function
+        function closeModal(element) {
+            const modal = element.closest('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Remove from favorites
+        async function removeFromFavorites(bookId) {
+            if (!currentUser) {
+                alert('Please log in to manage favorites');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/books/${bookId}/favorites`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Book removed from favorites!');
+                    showFavorites(); // Refresh the favorites modal
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error removing from favorites:', error);
+                alert('Error removing from favorites. Please try again.');
+            }
+        }
+
+        // Search Tab Functions
+        function switchSearchTab(tab) {
+            const basicSearch = document.getElementById('basicSearch');
+            const nlpSearch = document.getElementById('nlpSearch');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            // Update tab buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide search sections
+            if (tab === 'basic') {
+                basicSearch.style.display = 'block';
+                nlpSearch.style.display = 'none';
+            } else if (tab === 'nlp') {
+                basicSearch.style.display = 'none';
+                nlpSearch.style.display = 'block';
+            }
+        }
+
+        // Sample Query Functions
+        function useSampleQuery(query) {
+            document.getElementById('nlpQuery').value = query;
+            // Scroll to the textarea
+            document.getElementById('nlpQuery').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Focus on the textarea
+            document.getElementById('nlpQuery').focus();
+        }
+
+        // NLP Search Functions
+        async function getAIRecommendations() {
+            const query = document.getElementById('nlpQuery').value.trim();
+            if (!query) {
+                alert('Please enter what you\'re looking for in a book.');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('nlpResults');
+            const recommendationsDiv = document.getElementById('nlpRecommendations');
+            const resultsStats = document.getElementById('resultsStats');
+            
+            // Show loading
+            resultsDiv.style.display = 'block';
+            recommendationsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>🤖 AI is analyzing your request...</p></div>';
+            resultsStats.innerHTML = '';
+
+            try {
+                // Call the backend AI recommendations API using Google Gemini
+                const response = await fetch(`${API_BASE}/ai/recommendations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        limit: 5
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data.recommendations) {
+                    const recommendations = data.data.recommendations;
+                    
+                    // Update stats
+                    resultsStats.innerHTML = `Found ${recommendations.length} recommendations`;
+                    
+                    // Clear and populate with modern cards
+                    recommendationsDiv.innerHTML = '';
+                    
+                    recommendations.forEach(rec => {
+                        const recDiv = document.createElement('div');
+                        recDiv.className = 'modern-book-card';
+                        recDiv.onclick = () => showBookDetails(rec.id);
+                        
+                        // Generate star rating
+                        const stars = generateStars(rec.averageRating || 0);
+                        
+                        // Generate genre tags
+                        const genreTags = rec.genres && rec.genres.length > 0 
+                            ? rec.genres.map(genre => `<span class="modern-genre-tag">${genre.name}</span>`).join('')
+                            : '<span class="modern-genre-tag">General</span>';
+                        
+                        recDiv.innerHTML = `
+                            <div class="confidence-indicator">${Math.round((rec.confidence || 0.8) * 100)}% match</div>
+                            <img src="${rec.coverImageUrl || 'https://via.placeholder.com/300x400?text=No+Cover'}" 
+                                 alt="${rec.title}" class="modern-book-cover">
+                            <h3 class="modern-book-title">${rec.title}</h3>
+                            <p class="modern-book-author">by ${rec.author}</p>
+                            <div class="modern-book-genres">${genreTags}</div>
+                            <div class="modern-book-rating">
+                                <div class="rating-stars">${stars}</div>
+                                <span class="rating-text">${rec.averageRating ? rec.averageRating.toFixed(1) : 'No ratings'} (${rec.totalReviews || 0} reviews)</span>
+                            </div>
+                            <div class="modern-recommendation-reason">
+                                <div class="reason-label">Why Recommended</div>
+                                <div class="reason-text">${rec.recommendationReason || rec.reason || 'AI-powered recommendation based on your preferences'}</div>
+                            </div>
+                            <div class="modern-book-actions">
+                                <button class="modern-btn modern-btn-primary" onclick="event.stopPropagation(); showBookDetails('${rec.id}')">
+                                    📖 View Details
+                                </button>
+                                <button class="modern-btn modern-btn-secondary" onclick="event.stopPropagation(); addToFavorites('${rec.id}')">
+                                    ❤️ Add to Favorites
+                                </button>
+                            </div>
+                        `;
+                        recommendationsDiv.appendChild(recDiv);
+                    });
+                } else {
+                    throw new Error('Invalid response format');
+                }
+                
+            } catch (error) {
+                recommendationsDiv.innerHTML = '<div class="loading"><p>❌ Error getting AI recommendations. Please try again.</p></div>';
+                resultsStats.innerHTML = 'Error occurred';
+                console.error('Error getting AI recommendations:', error);
+            }
+        }
+
+        function generateRandomQuery() {
+            const randomQueries = [
+                "I want a thrilling mystery novel with strong female characters",
+                "I need a light-hearted romance book for a beach vacation",
+                "I want to learn about machine learning for beginners",
+                "I love fantasy books with dragons and magic",
+                "I want a thought-provoking sci-fi book about AI",
+                "I need a motivational self-help book",
+                "I want historical fiction set in World War II",
+                "I love books with plot twists and unexpected endings",
+                "I want a book about space exploration and adventure",
+                "I need a psychological thriller that keeps me guessing",
+                "I want to read about ancient civilizations and mythology",
+                "I love books about friendship and coming of age",
+                "I want a book about climate change and environmental issues",
+                "I need a book about entrepreneurship and business",
+                "I want to read about different cultures and travel"
+            ];
+            
+            const randomQuery = randomQueries[Math.floor(Math.random() * randomQueries.length)];
+            document.getElementById('nlpQuery').value = randomQuery;
+        }
+
+        // Fallback AI recommendations function (used when API is unavailable)
+        async function getMockAIRecommendations(query) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Analyze the query and return relevant books
+            const queryLower = query.toLowerCase();
+            const allBooks = currentBooks || [];
+            
+            // If no books loaded, try to load them
+            if (allBooks.length === 0) {
+                try {
+                    const response = await fetch(`${API_BASE}/books?limit=100`);
+                    if (response.status === 429) {
+                        console.error('Rate limited while loading books for recommendations');
+                        return [];
+                    }
+                    const data = await response.json();
+                    if (data.success) {
+                        currentBooks = data.data.books;
+                        return getMockAIRecommendations(query); // Recursive call with loaded books
+                    }
+                } catch (error) {
+                    console.error('Error loading books for recommendations:', error);
+                }
+            }
+            
+            // Parse complex queries with multiple criteria
+            let recommendations = allBooks;
+            
+            // Extract rating criteria (e.g., "3+ rating", "4 stars", "highly rated")
+            const ratingMatch = queryLower.match(/(\d+)\+?\s*(?:rating|stars?|star)/);
+            const minRating = ratingMatch ? parseFloat(ratingMatch[1]) : 0;
+            
+            // Extract title criteria (e.g., "starting with THE", "title contains")
+            const titleMatch = queryLower.match(/(?:starting with|begins with|title.*?)([a-z]+)/i);
+            const titlePrefix = titleMatch ? titleMatch[1].toUpperCase() : null;
+            
+            // Extract genre criteria
+            const genreKeywords = ['drama', 'mystery', 'thriller', 'romance', 'sci-fi', 'science fiction', 'fantasy', 'horror', 'comedy', 'adventure', 'historical', 'literary', 'fiction', 'non-fiction', 'biography', 'autobiography'];
+            const mentionedGenres = genreKeywords.filter(genre => queryLower.includes(genre));
+            
+            // Extract author criteria
+            const authorMatch = queryLower.match(/(?:by|author.*?)([a-z\s]+)/i);
+            const authorName = authorMatch ? authorMatch[1].trim() : null;
+            
+            // Extract price criteria
+            const priceMatch = queryLower.match(/(?:under|below|less than|cheap|budget).*?(\d+)/);
+            const maxPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+            
+            // Apply filters
+            recommendations = recommendations.filter(book => {
+                // Rating filter
+                if (minRating > 0 && book.averageRating < minRating) {
+                    return false;
+                }
+                
+                // Title filter
+                if (titlePrefix && !book.title.toUpperCase().startsWith(titlePrefix)) {
+                    return false;
+                }
+                
+                // Genre filter
+                if (mentionedGenres.length > 0) {
+                    const hasMatchingGenre = book.genres && book.genres.some(genre => 
+                        mentionedGenres.some(mentionedGenre => 
+                            genre.toLowerCase().includes(mentionedGenre.toLowerCase())
+                        )
+                    );
+                    if (!hasMatchingGenre) {
+                        return false;
+                    }
+                }
+                
+                // Author filter
+                if (authorName && !book.author.toLowerCase().includes(authorName.toLowerCase())) {
+                    return false;
+                }
+                
+                // Price filter
+                if (maxPrice && book.price > maxPrice) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // If no specific criteria matched, try keyword matching
+            if (recommendations.length === 0) {
+                if (queryLower.includes('mystery') || queryLower.includes('thriller') || queryLower.includes('suspense')) {
+                    recommendations = allBooks.filter(book => 
+                        book.genres && book.genres.some(genre => 
+                            genre.toLowerCase().includes('mystery') || 
+                            genre.toLowerCase().includes('thriller')
+                        ) || book.title.toLowerCase().includes('mystery')
+                    );
+                } else if (queryLower.includes('romance') || queryLower.includes('love')) {
+                    recommendations = allBooks.filter(book => 
+                        book.genres && book.genres.some(genre => 
+                            genre.toLowerCase().includes('romance')
+                        )
+                    );
+                } else if (queryLower.includes('sci-fi') || queryLower.includes('science fiction') || queryLower.includes('fantasy')) {
+                    recommendations = allBooks.filter(book => 
+                        book.genres && book.genres.some(genre => 
+                            genre.toLowerCase().includes('sci-fi') || 
+                            genre.toLowerCase().includes('fantasy') ||
+                            genre.toLowerCase().includes('science fiction')
+                        )
+                    );
+                } else if (queryLower.includes('drama') || queryLower.includes('dramatic')) {
+                    recommendations = allBooks.filter(book => 
+                        book.genres && book.genres.some(genre => 
+                            genre.toLowerCase().includes('drama') ||
+                            genre.toLowerCase().includes('literary fiction') ||
+                            genre.toLowerCase().includes('contemporary fiction')
+                        )
+                    );
+                } else {
+                    // Default: return highest rated books
+                    recommendations = allBooks
+                        .sort((a, b) => b.averageRating - a.averageRating);
+                }
+            }
+            
+            // Sort by relevance and rating
+            recommendations = recommendations
+                .sort((a, b) => {
+                    // Prioritize books that match more criteria
+                    const aScore = calculateRelevanceScore(a, queryLower, mentionedGenres, titlePrefix, authorName);
+                    const bScore = calculateRelevanceScore(b, queryLower, mentionedGenres, titlePrefix, authorName);
+                    return bScore - aScore;
+                })
+                .slice(0, 5); // Return exactly 5 recommendations
+            
+            // Add reasoning for each recommendation
+            return recommendations.map(book => ({
+                ...book,
+                reason: generateRecommendationReason(book, query, mentionedGenres, titlePrefix, minRating)
+            }));
+        }
+
+        function calculateRelevanceScore(book, queryLower, mentionedGenres, titlePrefix, authorName) {
+            let score = 0;
+            
+            // Base score from rating
+            score += book.averageRating * 2;
+            
+            // Genre matching bonus
+            if (mentionedGenres.length > 0 && book.genres) {
+                const matchingGenres = book.genres.filter(genre => 
+                    mentionedGenres.some(mentionedGenre => 
+                        genre.toLowerCase().includes(mentionedGenre.toLowerCase())
+                    )
+                );
+                score += matchingGenres.length * 5;
+            }
+            
+            // Title prefix matching bonus
+            if (titlePrefix && book.title.toUpperCase().startsWith(titlePrefix)) {
+                score += 10;
+            }
+            
+            // Author matching bonus
+            if (authorName && book.author.toLowerCase().includes(authorName.toLowerCase())) {
+                score += 8;
+            }
+            
+            // Title keyword matching bonus
+            const titleKeywords = queryLower.split(' ').filter(word => word.length > 3);
+            titleKeywords.forEach(keyword => {
+                if (book.title.toLowerCase().includes(keyword)) {
+                    score += 3;
+                }
+                if (book.description && book.description.toLowerCase().includes(keyword)) {
+                    score += 2;
+                }
+            });
+            
+            return score;
+        }
+
+        function generateRecommendationReason(book, query, mentionedGenres, titlePrefix, minRating) {
+            const queryLower = query.toLowerCase();
+            const reasons = [];
+            
+            // Rating reason
+            if (minRating > 0 && book.averageRating >= minRating) {
+                reasons.push(`Rated ${book.averageRating.toFixed(1)} stars (meets your ${minRating}+ rating requirement)`);
+            } else if (book.averageRating >= 4) {
+                reasons.push(`Highly rated at ${book.averageRating.toFixed(1)} stars`);
+            }
+            
+            // Genre reason
+            if (mentionedGenres.length > 0 && book.genres) {
+                const matchingGenres = book.genres.filter(genre => 
+                    mentionedGenres.some(mentionedGenre => 
+                        genre.toLowerCase().includes(mentionedGenre.toLowerCase())
+                    )
+                );
+                if (matchingGenres.length > 0) {
+                    reasons.push(`Matches your interest in ${matchingGenres.join(', ')}`);
+                }
+            }
+            
+            // Title reason
+            if (titlePrefix && book.title.toUpperCase().startsWith(titlePrefix)) {
+                reasons.push(`Title starts with "${titlePrefix}" as requested`);
+            }
+            
+            // Author reason
+            const authorMatch = queryLower.match(/(?:by|author.*?)([a-z\s]+)/i);
+            if (authorMatch && book.author.toLowerCase().includes(authorMatch[1].trim().toLowerCase())) {
+                reasons.push(`Written by ${book.author}`);
+            }
+            
+            // Default reasons
+            if (reasons.length === 0) {
+                if (book.averageRating >= 4) {
+                    reasons.push('Highly rated by readers');
+                }
+                if (book.totalReviews > 10) {
+                    reasons.push('Popular with many reviews');
+                }
+                if (book.genres && book.genres.length > 0) {
+                    reasons.push(`Genre: ${book.genres.slice(0, 2).join(', ')}`);
+                }
+            }
+            
+            return reasons.length > 0 ? reasons.join(' • ') : 'Recommended based on your preferences';
+        }
+
+        function clearNLPQuery() {
+            document.getElementById('nlpQuery').value = '';
+            document.getElementById('nlpResults').style.display = 'none';
+        }
+
+        // Load books
+        async function loadBooks() {
+            const container = document.getElementById('booksContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading books...</p>
+                </div>
+            `;
+
+            try {
+                const params = new URLSearchParams();
+                Object.keys(currentFilters).forEach(key => {
+                    if (currentFilters[key] !== '') {
+                        params.append(key, currentFilters[key]);
+                    }
+                });
+
+                const response = await fetch(`${API_BASE}/books?${params}`);
+                
+                // Check if response is rate limited
+                if (response.status === 429) {
+                    container.innerHTML = '<div class="loading"><p>Too many requests. Please wait a moment and try again.</p></div>';
+                    return;
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    currentBooks = data.data.books;
+                    currentPage = data.data.pagination.page;
+                    totalPages = data.data.pagination.pages;
+                    console.log('Pagination data:', { currentPage, totalPages, totalBooks: data.data.pagination.total });
+                    renderBooks();
+                    renderPagination();
+                } else {
+                    container.innerHTML = '<div class="loading"><p>Error loading books: ' + data.message + '</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading books:', error);
+                container.innerHTML = '<div class="loading"><p>Error loading books. Please try again.</p></div>';
+            }
+        }
+
+        // Render books
+        function renderBooks() {
+            const container = document.getElementById('booksContainer');
+            
+            if (currentBooks.length === 0) {
+                container.innerHTML = '<div class="loading"><p>No books found matching your criteria.</p></div>';
+                return;
+            }
+
+            const booksHTML = currentBooks.map(book => `
+                <div class="book-card" onclick="showBookDetails('${book.id}')">
+                    <img src="${book.coverImageUrl || 'https://via.placeholder.com/300x200?text=No+Cover'}" 
+                         alt="${book.title}" class="book-cover">
+                    <h3 class="book-title">${book.title}</h3>
+                    <p class="book-author">by ${book.author}</p>
+                    <div class="book-genres">
+                        ${book.genres ? book.genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('') : ''}
+                    </div>
+                    <p class="book-description">${book.description}</p>
+                    <div class="book-meta">
+                        <span class="book-year">${book.publishedYear}</span>
+                        ${book.price ? `<span class="book-price">$${book.price.toFixed(2)}</span>` : ''}
+                        <div class="book-rating">
+                            <span class="stars">${'★'.repeat(Math.round(book.averageRating))}${'☆'.repeat(5 - Math.round(book.averageRating))}</span>
+                            <span class="rating-text">${book.averageRating.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    <div class="book-stats">
+                        <span>${book.totalReviews} reviews</span>
+                        <span>${book.totalFavorites} favorites</span>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `<div class="books-grid">${booksHTML}</div>`;
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            console.log('renderPagination called:', { currentPage, totalPages });
+            
+            if (totalPages <= 1) {
+                console.log('No pagination needed, totalPages:', totalPages);
+                container.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+            
+            // Items per page selector
+            paginationHTML += `
+                <div class="pagination-controls">
+                    <label for="itemsPerPage">Items per page:</label>
+                    <select id="itemsPerPage" onchange="changeItemsPerPage(this.value)">
+                        <option value="10" ${currentFilters.limit === 10 ? 'selected' : ''}>10</option>
+                        <option value="25" ${currentFilters.limit === 25 ? 'selected' : ''}>25</option>
+                        <option value="100" ${currentFilters.limit === 100 ? 'selected' : ''}>100</option>
+                    </select>
+                </div>
+            `;
+            
+            // Previous button
+            paginationHTML += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">Previous</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    paginationHTML += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    paginationHTML += '<span>...</span>';
+                }
+            }
+            
+            // Next button
+            paginationHTML += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next</button>`;
+            
+            container.innerHTML = paginationHTML;
+            console.log('Pagination HTML set, length:', paginationHTML.length);
+        }
+
+        // Change items per page
+        function changeItemsPerPage(limit) {
+            currentFilters.limit = parseInt(limit);
+            currentFilters.page = 1; // Reset to first page
+            loadBooks();
+        }
+
+        // Change page
+        function changePage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentFilters.page = page;
+                currentPage = page;
+                loadBooks();
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            currentFilters.search = document.getElementById('searchInput').value;
+            currentFilters.genre = document.getElementById('genreSelect').value;
+            currentFilters.sortBy = document.getElementById('sortSelect').value;
+            currentFilters.minRating = parseInt(document.getElementById('minRating').value);
+            currentFilters.minPrice = document.getElementById('minPrice').value ? parseFloat(document.getElementById('minPrice').value) : undefined;
+            currentFilters.maxPrice = document.getElementById('maxPrice').value ? parseFloat(document.getElementById('maxPrice').value) : undefined;
+            currentFilters.page = 1;
+            currentPage = 1;
+            loadBooks();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('genreSelect').value = '';
+            document.getElementById('sortSelect').value = 'createdAt';
+            document.getElementById('minRating').value = '0';
+            document.getElementById('minPrice').value = '';
+            document.getElementById('maxPrice').value = '';
+            
+            currentFilters = {
+                search: '',
+                genre: '',
+                sortBy: 'createdAt',
+                sortOrder: 'desc',
+                minRating: 0,
+                minPrice: undefined,
+                maxPrice: undefined,
+                page: 1,
+                limit: 10
+            };
+            
+            currentPage = 1;
+            loadBooks();
+        }
+
+        // Show book details
+        async function showBookDetails(bookId) {
+            const modal = document.getElementById('bookDetailsModal');
+            const content = document.getElementById('bookDetailsContent');
+            
+            // Validate bookId
+            if (!bookId || bookId === 'undefined' || bookId === 'null') {
+                content.innerHTML = '<div class="loading"><p>Invalid book ID. Please refresh the page and try again.</p></div>';
+                modal.style.display = 'block';
+                return;
+            }
+            
+            content.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading book details...</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_BASE}/books/${bookId}`);
+                
+                if (response.status === 404) {
+                    content.innerHTML = '<div class="loading"><p>Book not found. This book may have been removed or the link is invalid.</p></div>';
+                    return;
+                }
+                
+                if (response.status === 500) {
+                    content.innerHTML = '<div class="loading"><p>Server error. Please try again later.</p></div>';
+                    return;
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    const book = data.data;
+                    renderBookDetails(book);
+                } else {
+                    content.innerHTML = '<div class="loading"><p>Error loading book details: ' + data.message + '</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading book details:', error);
+                content.innerHTML = '<div class="loading"><p>Error loading book details. Please try again.</p></div>';
+            }
+        }
+
+        // Render book details
+        function renderBookDetails(book) {
+            const content = document.getElementById('bookDetailsContent');
+            
+            content.innerHTML = `
+                <div class="book-details-header">
+                    <img src="${book.coverImageUrl || 'https://via.placeholder.com/200x300?text=No+Cover'}" 
+                         alt="${book.title}" class="book-details-cover">
+                    <div class="book-details-info">
+                        <h2>${book.title}</h2>
+                        <p class="book-details-author">by ${book.author}</p>
+                        <div class="book-details-meta">
+                            <span>Published: ${book.publishedYear}</span>
+                            <span>ISBN: ${book.isbn}</span>
+                            <span>${book.totalReviews} reviews</span>
+                            <span>${book.totalFavorites} favorites</span>
+                        </div>
+                        <div class="book-rating">
+                            <span class="stars">${'★'.repeat(Math.round(book.averageRating))}${'☆'.repeat(5 - Math.round(book.averageRating))}</span>
+                            <span class="rating-text">${book.averageRating.toFixed(1)} / 5.0</span>
+                        </div>
+                        <p class="book-details-description">${book.description}</p>
+                        <div class="book-actions">
+                            ${currentUser ? `
+                                <button class="btn btn-primary btn-small" onclick="addToFavorites('${book.id}')">Add to Favorites</button>
+                                <button class="btn btn-secondary btn-small" onclick="showReviewForm('${book.id}')">Write Review</button>
+                            ` : `
+                                <button class="btn btn-primary btn-small" onclick="showLoginModal()">Login to Add Review</button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reviews-section">
+                    <h3>Reviews</h3>
+                    <div id="reviewsContainer">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading reviews...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            loadBookReviews(book.id);
+        }
+
+        // Load book reviews
+        async function loadBookReviews(bookId) {
+            const container = document.getElementById('reviewsContainer');
+            
+            try {
+                const response = await fetch(`${API_BASE}/books/${bookId}/reviews`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderReviews(data.data.reviews);
+                } else {
+                    container.innerHTML = '<div class="loading"><p>Error loading reviews: ' + data.message + '</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                container.innerHTML = '<div class="loading"><p>Error loading reviews. Please try again.</p></div>';
+            }
+        }
+
+        // Render reviews
+        function renderReviews(reviews) {
+            const container = document.getElementById('reviewsContainer');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = '<p>No reviews yet. Be the first to review this book!</p>';
+                return;
+            }
+
+            const reviewsHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-author">${review.user.firstName} ${review.user.lastName}</span>
+                        <span class="review-date">${new Date(review.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="review-rating">
+                        <span class="stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                    </div>
+                    <div class="review-text">${review.reviewText}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `<div class="reviews-list">${reviewsHTML}</div>`;
+        }
+
+        // Close book details
+        function closeBookDetails() {
+            document.getElementById('bookDetailsModal').style.display = 'none';
+        }
+
+        // Add to favorites
+        async function addToFavorites(bookId) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            if (!currentUser.token) {
+                alert('Authentication token missing. Please login again.');
+                logout();
+                return;
+            }
+
+            // Validate bookId
+            if (!bookId || bookId === 'undefined' || bookId === 'null') {
+                alert('Invalid book ID. Please refresh the page and try again.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/books/${bookId}/favorites`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${currentUser.token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.status === 401) {
+                    alert('Session expired. Please login again.');
+                    logout();
+                    return;
+                }
+
+                if (response.status === 404) {
+                    alert('Book not found. Please refresh the page and try again.');
+                    return;
+                }
+
+                if (response.status === 500) {
+                    alert('Server error. Please try again later.');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Book added to favorites!');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding to favorites:', error);
+                if (error.message && error.message.includes('already in favorites')) {
+                    alert('This book is already in your favorites!');
+                } else {
+                    alert('Error adding to favorites. Please try again.');
+                }
+            }
+        }
+
+        // Show review form
+        function showReviewForm(bookId) {
+            if (!currentUser) {
+                showLoginModal();
+                return;
+            }
+
+            const container = document.getElementById('reviewsContainer');
+            const reviewFormHTML = `
+                <div class="review-form">
+                    <h4>Write a Review</h4>
+                    <form id="reviewForm">
+                        <div class="rating-input">
+                            <input type="radio" id="star5" name="rating" value="5">
+                            <label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1">★</label>
+                        </div>
+                        <textarea id="reviewText" placeholder="Write your review here..." required></textarea>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                </div>
+            `;
+
+            container.innerHTML = reviewFormHTML + container.innerHTML;
+
+            // Handle review form submission
+            document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const rating = document.querySelector('input[name="rating"]:checked');
+                const reviewText = document.getElementById('reviewText').value;
+
+                if (!rating) {
+                    alert('Please select a rating');
+                    return;
+                }
+
+                if (!currentUser.token) {
+                    alert('Authentication token missing. Please login again.');
+                    logout();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/books/${bookId}/reviews`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${currentUser.token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            rating: parseInt(rating.value),
+                            reviewText: reviewText
+                        })
+                    });
+
+                    if (response.status === 401) {
+                        alert('Session expired. Please login again.');
+                        logout();
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        alert('Review submitted successfully!');
+                        loadBookReviews(bookId); // Reload reviews
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    alert('Error submitting review. Please try again.');
+                }
+            });
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
+            const bookDetailsModal = document.getElementById('bookDetailsModal');
+            
+            if (event.target === loginModal) {
+                closeLoginModal();
+            }
+            if (event.target === registerModal) {
+                closeRegisterModal();
+            }
+            if (event.target === bookDetailsModal) {
+                closeBookDetails();
+            }
+        }
+
+
+
+    </script>
+</body>
+</html>

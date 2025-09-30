@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotFoundPage Component renders consistently 1`] = `
+<div
+  class="MuiContainer-root MuiContainer-maxWidthSm css-cuefkz-MuiContainer-root"
+  data-testid="not-found-page"
+>
+  <div
+    class="MuiBox-root css-1aicb05"
+  >
+    <h1
+      class="MuiTypography-root MuiTypography-h1 MuiTypography-gutterBottom css-a4d0r7-MuiTypography-root"
+    >
+      404
+    </h1>
+    <h2
+      class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-1vw6mcs-MuiTypography-root"
+    >
+      Page Not Found
+    </h2>
+    <p
+      class="MuiTypography-root MuiTypography-body1 css-1pnmrwp-MuiTypography-root"
+    >
+      The page you are looking for does not exist.
+    </p>
+  </div>
+</div>
+`;
